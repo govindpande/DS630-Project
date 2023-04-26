@@ -26,8 +26,8 @@ page_select = st.sidebar.selectbox("Select page", ["Project Overview","Stock Vis
 def mainn():
   if page_select== "Project Overview":
     st.write("Project Overview")
-    with open("stonks.gif", "rb") as f:
-      st.image(f.read(), width=500)
+    #with open("stonks.gif", "rb") as f:
+    #  st.image(f.read(), width=500)
 
       st.title("Stock Market Data Visualization Project")
 
