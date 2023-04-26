@@ -26,10 +26,10 @@ page_select = st.sidebar.selectbox("Select page", ["Project Overview","Stock Vis
 def mainn():
   if page_select== "Project Overview":
     st.write("Project Overview")
-    #with open("stonks.gif", "rb") as f:
-    #  st.image(f.read(), width=500)
+    with open("stonks.gif", "rb") as f:
+       st.image(f.read(), width=500)
 
-      st.title("Stock Market Data Visualization Project")
+    st.title("Stock Market Data Visualization Project")
 
     st.header("Introduction:")
     st.write("The main objective of this project is to build a data visualization web application using Streamlit that can help users visualize and analyze stock market data. The project is divided into four main sections, each focusing on a specific aspect of stock market analysis. These sections include stock visualization, shareholder visualization, compare stocks, and price prediction. In this project, we have used various libraries such as yfinance for getting the data, Facebook Prophet for price prediction, and Plotly graph objects and Matplotlib for visualization.")
