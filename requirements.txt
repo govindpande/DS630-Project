@@ -1,0 +1,8 @@
+numpy
+pandas
+Finance
+plotly
+streamlit
+matplotlib	
+Prophet
+Datetime
