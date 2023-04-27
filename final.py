@@ -57,7 +57,7 @@ def mainn():
 
   if page_select== "Stock Visualizations":
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)',value="GOOGL")
-    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
+    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'),, min_value=1990)
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
 
     df = yf.download(ticker, start=start_date, end=end_date)
