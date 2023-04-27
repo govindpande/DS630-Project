@@ -12,7 +12,6 @@ from prophet import Prophet
 st.sidebar.header("Final Project for DS-630 Data Visualization")
 
 st.sidebar.markdown(" ")
-st.sidebar.markdown("*This project is done as a part of the final project for the DS-630")
 st.sidebar.markdown("Guided by **Dr Jerry Cheng**")
 st.sidebar.markdown("**Author**: Govind Pande")
 st.sidebar.markdown("**NYIT ID**: 1302516")
