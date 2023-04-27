@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 import plotly.graph_objs as go
 from prophet import Prophet
-
-
+import ydata
+from pandas_profiling import ProfileReport
 
 st.sidebar.header("Final Project for DS-630 Data Visualization")
 
@@ -240,6 +240,18 @@ def mainn():
 
     st.pyplot(fig)
 
+    
+  if page_select== "Bring your own data":
+    dataf = pd.read_csv(uploaded_file)
+    
+    pr = dataf.profile_report()
+
+    st_profile_report(pr)
+    
+    
+    
+    
+    
   st.markdown('-----------------------------------------------------')
   st.text('Developed by Govind Pande - April 2023')
 
