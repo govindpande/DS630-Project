@@ -242,11 +242,13 @@ def mainn():
 
     
   if page_select== "Bring your own data":
-    dataf = pd.read_csv(uploaded_file)
-    
-    pr = dataf.profile_report()
-
-    st_profile_report(pr)
+    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+    #dataf = pd.read_csv(uploaded_file)
+    if uploaded_file is not None:
+      dataf = pd.read_csv(uploaded_file)
+      if st.button("Generate Report"):
+        pr = dataf.profile_report()
+        st_profile_report(pr)
     
     
     
