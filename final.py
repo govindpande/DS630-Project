@@ -156,7 +156,7 @@ def mainn():
 
   if page_select== "Compare Stocks":
     # Define a list of stock symbols to plot
-    symbols = ['AAPL', 'AMZN', 'GOOG', 'MSFT', 'TSLA', 'FB', 'NVDA', 'JNJ', 'V', 'PG']
+    symbols = ['AAPL', 'AMZN', 'GOOG', 'MSFT', 'TSLA', 'NVDA', 'JNJ', 'V', 'PG']
 
     # Allow the user to input new symbols to plot
     new_symbols = st.text_input('Enter new symbols to plot (separated by commas)')
