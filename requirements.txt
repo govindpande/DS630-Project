@@ -6,3 +6,4 @@ streamlit
 matplotlib	
 Prophet
 Datetime
+ydata-profiling
