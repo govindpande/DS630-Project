@@ -75,6 +75,7 @@ def mainn():
 
       # Display the chart in Streamlit
       st.plotly_chart(fig)
+      st.write(df)
 
 
 
