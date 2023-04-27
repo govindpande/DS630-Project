@@ -20,7 +20,7 @@ st.sidebar.markdown("**NYIT ID**: 1302516")
 
 
 
-page_select = st.sidebar.selectbox("Select page", ["Project Overview","Stock Visualizations","Share Holders Visualization","Compare Stocks","Price Prediction"])
+page_select = st.sidebar.selectbox("Select page", ["Project Overview","Stock Visualizations","Share Holders Visualization","Compare Stocks","Price Prediction","Bring your own data"])
 
 def mainn():
   if page_select== "Project Overview":
