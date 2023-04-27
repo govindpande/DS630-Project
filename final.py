@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 import plotly.graph_objs as go
 from prophet import Prophet
-from pandas_profiling import ProfileReport
+import ydata_profiling
+from ydata_profiling import ProfileReport
 
 st.sidebar.header("Final Project for DS-630 Data Visualization")
 
