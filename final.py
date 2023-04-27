@@ -8,6 +8,7 @@ import plotly.graph_objs as go
 from prophet import Prophet
 import ydata_profiling
 from ydata_profiling import ProfileReport
+from streamlit_pandas_profiling import st_profile_report
 
 st.sidebar.header("Final Project for DS-630 Data Visualization")
 
