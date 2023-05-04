@@ -56,6 +56,7 @@ def mainn():
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)',value="GOOGL")
     start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
+    st.write("The line chart function in Plotly Graph Objects is a powerful tool for visualizing trends in data over time. The function allows users to create highly customizable line charts with features such as multiple lines, shaded areas, and annotations. Users can also add interactive features such as hover text and zoom functionality. The line chart function is suitable for a wide range of applications, from analyzing stock prices to tracking website traffic. Overall, the line chart function in Plotly Graph Objects is a versatile and effective tool for visualizing time-series data.")
 
     df = yf.download(ticker, start=start_date, end=end_date)
 
