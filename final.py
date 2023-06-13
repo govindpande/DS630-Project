@@ -12,7 +12,7 @@ from streamlit_pandas_profiling import st_profile_report
 
 
 
-st.sidebar.write("Developed by Govind Pande")
+st.sidebar.header("Developed by Govind Pande")
 
 
 
