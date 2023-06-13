@@ -16,7 +16,7 @@ st.sidebar.header("Developed by Govind Pande")
 
 
 
-page_select = st.sidebar.selectbox("Select page", ["Project Overview","Stock Visualizations","Share Holders Visualization","Compare Stocks","Price Prediction","Bring your own data"])
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview","Stock Visualizations","Share Holders Visualization","Compare Stocks","Price Prediction","Bring your own data"])
 
 def mainn():
   if page_select== "Project Overview":
