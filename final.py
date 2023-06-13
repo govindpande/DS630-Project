@@ -10,12 +10,7 @@ import ydata_profiling
 from ydata_profiling import ProfileReport
 from streamlit_pandas_profiling import st_profile_report
 
-st.sidebar.header("Final Project for DS-630 Data Visualization")
 
-st.sidebar.markdown(" ")
-st.sidebar.markdown("Guided by **Dr Jerry Cheng**")
-st.sidebar.markdown("**Author**: Govind Pande")
-st.sidebar.markdown("**NYIT ID**: 1302516")
 
 
 
