@@ -107,7 +107,7 @@ def mainn():
 
       
   if page_select == "Share Holders Visualization":
-        pie_type = st.selectbox("Select type", ["View Shareholders Data", "Institutional Ownership Pie Chart"])
+        pie_type = st.selectbox("Select type", ["Institutional Ownership Pie Chart","View Shareholders Data",])
         ticker = st.sidebar.text_input('Enter a stock ticker symbol:', 'AAPL')
         
 
