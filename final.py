@@ -13,6 +13,7 @@ from streamlit_pandas_profiling import st_profile_report
 
 
 st.sidebar.header("Developed by Govind Pande")
+st.sidebar.write("Guided by Dr Cheng")
 
 
 
