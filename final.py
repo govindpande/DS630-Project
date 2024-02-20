@@ -434,7 +434,7 @@ def plot_weekly_movement(df, ticker, start_date, end_date, sell_price, percent_a
 # The main part of the Streamlit app where you call backtest_strategy and plot each week's movement remains unchanged.
 # Ensure when calling plot_weekly_movement, you now also pass sell_price, percent_above, and percent_below along with the other parameters.
 
-if page_select == "Backtest":
+if page_select == "Backtest Viz":
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
     start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
