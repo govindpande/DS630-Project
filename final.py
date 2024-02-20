@@ -17,7 +17,7 @@ st.sidebar.write("Guided by Dr Cheng")
 
 
 # Update page selection to include "Weekly Volatility & ^INDIAVIX"
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks","Backtest", "Price Prediction", "Bring your own data","Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet"])
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks","Backtest","Backtest Viz", "Price Prediction", "Bring your own data","Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet"])
 
 
 
@@ -443,6 +443,41 @@ if page_select == "Backtest":
         st.write(f"Backtest Results for {ticker}")
         st.dataframe(results_df)
         st.write(f"Success Rate: {success_rate:.2f}%")
+
+def plot_weekly_movement(df, ticker, start_date, end_date, result_info):
+    # Create a Plotly graph for the given week
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close Price'))
+    
+    # Setting up the title to include profit/loss and other info
+    title_text = f"{ticker} Price Movement ({start_date} to {end_date}): {result_info}"
+    fig.update_layout(title=title_text, xaxis_title='Date', yaxis_title='Price')
+    
+    return fig
+
+# Streamlit app layout
+if page_select == "Backtest Viz":
+    ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
+    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
+    end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
+    percent_above = st.sidebar.number_input("Percentage above strike price", value=2)
+    percent_below = st.sidebar.number_input("Percentage below strike price", value=2)
+
+    if st.sidebar.button("Backtest Strategy"):
+        results_df, success_rate = backtest_strategy(ticker, start_date, end_date, percent_above, percent_below)
+        st.write(f"Backtest Results for {ticker}")
+        st.dataframe(results_df)
+        st.write(f"Success Rate: {success_rate:.2f}%")
+
+        # Plot for each week
+        for index, row in results_df.iterrows():
+            week_df = yf.download(ticker, start=row['Sell Date'], end=row['Expiry Date'])
+            result_info = f"Result: {row['Result']}, % Change: {row['% Change']:.2f}, Avg VIX: {row['Avg VIX']:.2f}"
+            fig = plot_weekly_movement(week_df, ticker, row['Sell Date'], row['Expiry Date'], result_info)
+            st.plotly_chart(fig)
+
+
+
 
 def main():
   mainn()
