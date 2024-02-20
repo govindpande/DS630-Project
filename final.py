@@ -409,12 +409,9 @@ def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below
         percent_change = ((expiry_price - sell_price) / sell_price) * 100
         result = "Profit" if expiry_price <= upper_strike and expiry_price >= lower_strike else "Loss"
 
-        period_high = df.loc[sell_date:expiry_date, 'High'].max()
-        period_low = df.loc[sell_date:expiry_date, 'Low'].min()
+        results.append((sell_date.date(), sell_price, expiry_date.date(), expiry_price, percent_change, result))
 
-        results.append((sell_date.date(), expiry_date.date(), sell_price, upper_strike, lower_strike, period_high, period_low, percent_change, result))
-
-    results_df = pd.DataFrame(results, columns=['Sell Date', 'Expiry Date', 'Sell Price', 'Upper Strike', 'Lower Strike', 'Period High', 'Period Low', '% Change', 'Result'])
+    results_df = pd.DataFrame(results, columns=['Sell Date', 'Sell Price', 'Expiry Date', 'Expiry Price', '% Change', 'Result'])
 
     # Calculate the success rate
     success_rate = (results_df['Result'] == 'Profit').mean() * 100
@@ -429,8 +426,6 @@ if page_select == "Backtest":
     percent_above = st.sidebar.number_input("Percentage above strike price", value=2)
     percent_below = st.sidebar.number_input("Percentage below strike price", value=2)
 
-    df = yf.download(ticker, start=start_date, end=end_date)
-
     chart_type = st.selectbox("Select chart type", ["Line Chart", "Candlesticks"])
 
     # If the user selects a line chart
@@ -439,7 +434,6 @@ if page_select == "Backtest":
         fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close'))
         fig.update_layout(title=f"{ticker} Close Price", xaxis_title='Date', yaxis_title='Price')
         st.plotly_chart(fig)
-        st.write(df)
 
     # Adding an option to backtest the strategy
     if st.sidebar.button("Backtest Strategy"):
