@@ -13,7 +13,7 @@ import numpy as np
 
 
 st.sidebar.header("Developed by Govind Pande")
-st.sidebar.write("Guided by Dr Cheng")
+
 
 
 # Update page selection to include "Weekly Volatility & ^INDIAVIX"
