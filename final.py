@@ -419,7 +419,8 @@ def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below
     return results_df, success_rate
 
 # Streamlit app layout
-  if page_select == "Backtest":
+if page_select == "Backtest":
+    
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
     start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
