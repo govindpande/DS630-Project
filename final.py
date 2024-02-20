@@ -456,7 +456,7 @@ if page_select == "Backtest Viz":
             st.plotly_chart(fig)
 
 
-def mainn():
+
     if page_select == "NIFTY 500 Sentiment Dashboard":
         # Assuming you have the sentiment analysis dashboard code here
         # Read CSV
