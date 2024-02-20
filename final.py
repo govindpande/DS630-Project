@@ -10,14 +10,16 @@ import ydata_profiling
 from ydata_profiling import ProfileReport
 from streamlit_pandas_profiling import st_profile_report
 import numpy as np
-
+from xgboost import XGBRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 st.sidebar.header("Developed by Govind Pande")
 st.sidebar.write("Guided by Dr Cheng")
 
 
 # Update page selection to include "Weekly Volatility & ^INDIAVIX"
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX"])
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX","Weekly Volatility Prediction with XGBoost"])
 
 
 
@@ -296,6 +298,61 @@ if page_select == "Weekly Volatility & ^INDIAVIX":
             st.plotly_chart(fig_indiavix)
         else:
             st.write("No data available for the selected ticker or ^INDIAVIX.")
+
+
+
+def create_lagged_features(df, n_lags=5):
+    """
+    Create lagged features for a DataFrame.
+    """
+    for lag in range(1, n_lags + 1):
+        df[f'lag_{lag}'] = df['weekly_volatility'].shift(lag)
+    df.dropna(inplace=True)
+    return df
+
+# Example of preparing the data for XGBoost
+if page_select == "Weekly Volatility Prediction with XGBoost":
+    st.title("Predict Weekly Volatility of Stock with XGBoost")
+
+    # User inputs
+    ticker = st.sidebar.text_input('Enter a stock ticker (e.g. TCS)', value="TCS")
+    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2019-01-01')) # Extended back for more data
+    end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
+
+    if ticker:
+        df_stock = fetch_stock_data(ticker, start_date, end_date)
+        if not df_stock.empty:
+            weekly_volatility_stock = calculate_weekly_volatility(df_stock)
+            df_features = weekly_volatility_stock.to_frame(name='weekly_volatility')
+            df_features = create_lagged_features(df_features)
+
+            # Split data into features (X) and target (y)
+            X = df_features.drop('weekly_volatility', axis=1)
+            y = df_features['weekly_volatility']
+
+            # Split data into training and test sets
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+
+            # Train the XGBoost model
+            model = XGBRegressor(objective='reg:squarederror', n_estimators=100)
+            model.fit(X_train, y_train)
+
+            # Predictions
+            predictions = model.predict(X_test)
+
+            # Plot actual vs predicted volatility
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=y_test.index, y=y_test, mode='lines', name='Actual Volatility'))
+            fig.add_trace(go.Scatter(x=y_test.index, y=predictions, mode='lines', name='Predicted Volatility'))
+            fig.update_layout(title='Actual vs Predicted Weekly Volatility', xaxis_title='Date', yaxis_title='Volatility')
+            st.plotly_chart(fig)
+
+            # Show RMSE
+            rmse = np.sqrt(mean_squared_error(y_test, predictions))
+            st.write(f'RMSE: {rmse}')
+
+
+
 
 def main():
   mainn()
