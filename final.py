@@ -260,16 +260,22 @@ def fetch_stock_data(ticker, start_date, end_date):
     df = yf.download(ticker, start=start_date, end=end_date)
     return df
 
-# Function to calculate weekly volatility
+# Function to calculate weekly volatility for each week
 def calculate_weekly_volatility(df):
-    # Resample to weekly, take the last price, and calculate the percent change
     weekly_returns = df['Close'].resample('W').last().pct_change()
-    weekly_volatility = weekly_returns.std() * np.sqrt(52)  # Annualize the weekly standard deviation
-    return weekly_volatility
+    weekly_volatility = weekly_returns.std() * np.sqrt(52)  # To keep it on a weekly basis, remove the annualization
+    return weekly_returns.std()
 
-# Weekly Volatility Page
-if page_select == "Weekly Volatility":
-    st.title("Weekly Volatility of Stock")
+# Function to fetch VIX data
+def fetch_vix_data(start_date, end_date):
+    vix = yf.download('^VIX', start=start_date, end=end_date)
+    return vix['Close'].resample('W').last()
+
+# Update page selection to include "Weekly Volatility & VIX"
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility & VIX"])
+
+if page_select == "Weekly Volatility & VIX":
+    st.title("Weekly Volatility of Stock and VIX Comparison")
 
     # User inputs for stock ticker and date range
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="AAPL")
@@ -278,23 +284,29 @@ if page_select == "Weekly Volatility":
 
     if ticker:
         # Fetch stock data
-        df = fetch_stock_data(ticker, start_date, end_date)
+        df_stock = fetch_stock_data(ticker, start_date, end_date)
+        df_vix = fetch_vix_data(start_date, end_date)
 
-        if not df.empty:
-            # Calculate weekly volatility
-            weekly_volatility = calculate_weekly_volatility(df)
+        if not df_stock.empty and not df_vix.empty:
+            # Calculate weekly volatility for the stock
+            weekly_volatility_stock = df_stock['Close'].resample('W').last().pct_change().dropna()
+            weekly_volatility = weekly_volatility_stock * np.sqrt(52)  # Remove annualization if weekly volatility desired
 
-            # Plot weekly volatility
+            # Plot weekly volatility for the stock
             fig = go.Figure()
-            fig.add_trace(go.Bar(x=[ticker], y=[weekly_volatility], name='Weekly Volatility'))
-            fig.update_layout(title=f"Weekly Volatility for {ticker}", xaxis_title='Stock', yaxis_title='Volatility')
+            fig.add_trace(go.Scatter(x=weekly_volatility_stock.index, y=weekly_volatility, mode='lines+markers', name=f'{ticker} Weekly Volatility'))
+            # Plot VIX for comparison
+            fig.add_trace(go.Scatter(x=df_vix.index, y=df_vix, mode='lines', name='VIX'))
+
+            fig.update_layout(title=f"Weekly Volatility for {ticker} & VIX Comparison", xaxis_title='Date', yaxis_title='Volatility', legend_title='Legend')
 
             st.plotly_chart(fig)
 
-            st.write(f"Weekly Volatility for {ticker}: {weekly_volatility:.2%}")
+            # Display correlation information
+            correlation = weekly_volatility.corr(df_vix.reindex(weekly_volatility.index))
+            st.write(f"Correlation between {ticker} weekly volatility and VIX: {correlation:.2f}")
         else:
-            st.write("No data available for the selected ticker.")
-
+            st.write("No data available for the selected ticker or VIX.")
 
 def main():
   mainn()
