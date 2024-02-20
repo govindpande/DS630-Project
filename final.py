@@ -255,7 +255,10 @@ def mainn():
   st.markdown('-----------------------------------------------------')
   st.text('Developed by Govind Pande - April 2023')
 
-
+# Function to fetch stock data
+def fetch_stock_data(ticker, start_date, end_date):
+    df = yf.download(ticker, start=start_date, end=end_date)
+    return df
 
 # Function to calculate weekly volatility
 def calculate_weekly_volatility(df):
