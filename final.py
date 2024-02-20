@@ -429,11 +429,7 @@ if page_select == "Backtest":
     chart_type = st.selectbox("Select chart type", ["Line Chart", "Candlesticks"])
 
     # If the user selects a line chart
-    if chart_type == "Line Chart":
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close'))
-        fig.update_layout(title=f"{ticker} Close Price", xaxis_title='Date', yaxis_title='Price')
-        st.plotly_chart(fig)
+
 
     # Adding an option to backtest the strategy
     if st.sidebar.button("Backtest Strategy"):
