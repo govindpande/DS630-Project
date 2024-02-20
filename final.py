@@ -390,7 +390,7 @@ def backtest_strategy(ticker, start_date, end_date):
 def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below):
     df = yf.download(ticker, start=start_date, end=end_date)
     df['DayOfWeek'] = df.index.dayofweek
-    mondays = df[df['DayOfWeek'] == 0]  # 0 is Monday
+    mondays = df[df['DayOfWeek'] == 0]  # Monday
 
     results = []
 
@@ -409,13 +409,17 @@ def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below
         percent_change = ((expiry_price - sell_price) / sell_price) * 100
         result = "Profit" if expiry_price <= upper_strike and expiry_price >= lower_strike else "Loss"
 
-        # Calculate the high and low during the period
         period_high = df.loc[sell_date:expiry_date, 'High'].max()
         period_low = df.loc[sell_date:expiry_date, 'Low'].min()
 
         results.append((sell_date.date(), expiry_date.date(), sell_price, upper_strike, lower_strike, period_high, period_low, percent_change, result))
 
-    return pd.DataFrame(results, columns=['Sell Date', 'Expiry Date', 'Sell Price', 'Upper Strike', 'Lower Strike', 'Period High', 'Period Low', '% Change', 'Result'])
+    results_df = pd.DataFrame(results, columns=['Sell Date', 'Expiry Date', 'Sell Price', 'Upper Strike', 'Lower Strike', 'Period High', 'Period Low', '% Change', 'Result'])
+
+    # Calculate the success rate
+    success_rate = (results_df['Result'] == 'Profit').mean() * 100
+
+    return results_df, success_rate
 
 # Streamlit app layout
 if page_select == "Backtest":
@@ -439,9 +443,10 @@ if page_select == "Backtest":
 
     # Adding an option to backtest the strategy
     if st.sidebar.button("Backtest Strategy"):
-        results_df = backtest_strategy(ticker, start_date, end_date, percent_above, percent_below)
+        results_df, success_rate = backtest_strategy(ticker, start_date, end_date, percent_above, percent_below)
         st.write(f"Backtest Results for {ticker}")
         st.dataframe(results_df)
+        st.write(f"Success Rate: {success_rate:.2f}%")
 
 def main():
   mainn()
