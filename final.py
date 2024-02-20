@@ -353,39 +353,7 @@ if page_select == "Weekly Volatility Prediction with Prophet":
 
 # Add yfinance and pandas to your imports at the beginning of your script
 
-def backtest_strategy(ticker, start_date, end_date):
-    # Download historical stock data
-    df = yf.download(ticker, start=start_date, end=end_date)
-    
-    # Calculate the Mondays and their corresponding expiry Thursdays
-    df['DayOfWeek'] = df.index.dayofweek
-    mondays = df[df['DayOfWeek'] == 0]  # 0 is Monday
 
-    profit_count = 0
-    loss_count = 0
-
-    for date, row in mondays.iterrows():
-        sell_date = date
-        expiry_date = sell_date + pd.Timedelta(days=10)
-
-        if expiry_date not in df.index:
-            continue
-
-        sell_price = row['Close']
-        upper_strike = sell_price * 1.02
-        lower_strike = sell_price * 0.98
-
-        expiry_price = df.loc[expiry_date, 'Close']
-
-        if expiry_price <= upper_strike and expiry_price >= lower_strike:
-            profit_count += 1
-        else:
-            loss_count += 1
-
-    total_trades = profit_count + loss_count
-    success_rate = (profit_count / total_trades) * 100 if total_trades > 0 else 0
-    
-    return success_rate
 def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below):
     # Download stock data
     df = yf.download(ticker, start=start_date, end=end_date)
