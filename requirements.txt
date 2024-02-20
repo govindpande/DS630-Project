@@ -8,4 +8,3 @@ Prophet
 Datetime
 ydata-profiling
 streamlit_pandas_profiling
-xgboost
