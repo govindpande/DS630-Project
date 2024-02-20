@@ -15,11 +15,8 @@ import numpy as np
 st.sidebar.header("Developed by Govind Pande")
 st.sidebar.write("Guided by Dr Cheng")
 
-
-
-# Add 'Weekly Volatility' to the page selection dropdown
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility"])
-
+# Update page selection to include "Weekly Volatility & VIX"
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility & VIX"])
 def mainn():
   if page_select== "Project Overview":
 
@@ -271,8 +268,6 @@ def fetch_vix_data(start_date, end_date):
     vix = yf.download('^VIX', start=start_date, end=end_date)
     return vix['Close'].resample('W').last()
 
-# Update page selection to include "Weekly Volatility & VIX"
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility & VIX"])
 
 if page_select == "Weekly Volatility & VIX":
     st.title("Weekly Volatility of Stock and VIX Comparison")
