@@ -386,11 +386,14 @@ def backtest_strategy(ticker, start_date, end_date):
     success_rate = (profit_count / total_trades) * 100 if total_trades > 0 else 0
     
     return success_rate
-
 def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below):
+    # Download stock data
     df = yf.download(ticker, start=start_date, end=end_date)
     df['DayOfWeek'] = df.index.dayofweek
     mondays = df[df['DayOfWeek'] == 0]  # Monday
+    
+    # Download VIX data for the same period
+    vix_df = yf.download("^VIX", start=start_date, end=end_date)
 
     results = []
 
@@ -407,11 +410,14 @@ def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below
         price_difference = expiry_price - sell_price
         direction = "Above" if expiry_price > sell_price else "Below" if expiry_price < sell_price else "Equal"
 
+        # Calculate the average VIX for the period from sell to expiry date
+        avg_vix = vix_df.loc[sell_date:expiry_date, 'Close'].mean()
+
         result = "Profit" if ((expiry_price / sell_price - 1) * 100) <= percent_above and ((expiry_price / sell_price - 1) * 100) >= -percent_below else "Loss"
 
-        results.append((sell_date.date(), sell_price, expiry_date.date(), expiry_price, percent_change, price_difference, direction, result))
+        results.append((sell_date.date(), sell_price, expiry_date.date(), expiry_price, percent_change, price_difference, direction, avg_vix, result))
 
-    results_df = pd.DataFrame(results, columns=['Sell Date', 'Sell Price', 'Expiry Date', 'Expiry Price', '% Change', 'Price Difference', 'Direction', 'Result'])
+    results_df = pd.DataFrame(results, columns=['Sell Date', 'Sell Price', 'Expiry Date', 'Expiry Price', '% Change', 'Price Difference', 'Direction', 'Avg VIX', 'Result'])
 
     # Calculate the success rate
     success_rate = (results_df['Result'] == 'Profit').mean() * 100
