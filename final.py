@@ -262,7 +262,7 @@ def fetch_stock_data(ticker, start_date, end_date):
     return df
 # Function to fetch ^INDIAVIX data
 def fetch_indiavix_data(start_date, end_date):
-    vix = yf.download('^INDIAVIX', start=start_date, end=end_date)
+    vix = yf.download('^VIX', start=start_date, end=end_date)
     return vix['Close'].resample('W').last()
 
 if page_select == "Weekly Volatility & ^INDIAVIX":
