@@ -429,7 +429,7 @@ def plot_weekly_movement(df, ticker, start_date, end_date, sell_price, percent_a
     fig.add_hline(y=lower_strike, line_dash="dash", line_color="red", annotation_text="Lower Strike")
     
     # Setting up the title to include profit/loss, other info, and days within profit zone
-    title_text = f"{ticker} Price Movement ({start_date} to {end_date}): {result_info},\n nDays in Profit Zone: {days_within_profit_zone}"
+    title_text = f"{ticker}({start_date} to {end_date}): {result_info},Days in Profit: {days_within_profit_zone}"
     fig.update_layout(title=title_text, xaxis_title='Date', yaxis_title='Price')
     
     return fig
