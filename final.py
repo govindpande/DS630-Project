@@ -309,43 +309,33 @@ if page_select == "Weekly Volatility Prediction with Prophet":
     # Download stock data
     stock_data = yf.download(symbol, start=start_date, end=end_date)
 
-    # Prepare data for Prophet directly with closing prices
-    df = pd.DataFrame()
-    df['ds'] = stock_data.index
-    df['y'] = stock_data['Close'].values
+    # Ensure the index is datetime for resampling
+    stock_data.index = pd.to_datetime(stock_data.index)
 
-    # Calculate weekly volatility from daily closing prices
-    df['y'] = df['y'].pct_change().dropna()  # Daily returns
-    df['weekly_volatility'] = df['y'].resample('W', on='ds').std() * np.sqrt(52)  # Convert daily returns to weekly volatility and annualize
-    df.dropna(inplace=True)  # Remove NaN values after resampling and calculation
-    df.reset_index(drop=True, inplace=True)
+    # Calculate daily returns
+    daily_returns = stock_data['Close'].pct_change().dropna()
 
-    # Prepare a new DataFrame for Prophet with weekly volatility
-    df_prophet = pd.DataFrame({'ds': df['ds'], 'y': df['weekly_volatility']})
+    # Calculate weekly volatility
+    weekly_volatility = daily_returns.resample('W').std() * np.sqrt(52)
+
+    # Prepare data for Prophet
+    df_prophet = pd.DataFrame({'ds': weekly_volatility.index, 'y': weekly_volatility.values})
 
     # Train Prophet model
-    m = Prophet(daily_seasonality=True)
-    m.fit(df)
+    m = Prophet(daily_seasonality=False, weekly_seasonality=False, yearly_seasonality=True)
+    m.fit(df_prophet)
 
-    # Predict future prices
-    future = m.make_future_dataframe(periods=forecast_days)
+    # Predict future volatility
+    future = m.make_future_dataframe(periods=forecast_days, freq='W')
     fcst = m.predict(future)
 
+    # Plot predicted volatility
+    fig = m.plot(fcst)
+    plt.title('Weekly Volatility Prediction')
+    plt.ylabel('Volatility')
+    plt.xlabel('Date')
 
-    # Plot predicted prices
-    fig, ax = plt.subplots(figsize=(12, 8)) # Set figure size to 12x8 inches
-    ax.plot(df['ds'], df['y'], label='Actual')
-    ax.plot(fcst['ds'], fcst['yhat'], label='Predicted')
-    ax.fill_between(fcst['ds'], fcst['yhat_lower'], fcst['yhat_upper'], alpha=0.3, color='gray')
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Price ($)')
-    ax.set_title('Stock Price Prediction')
-    ax.legend()
-
-    # Format x-axis to show date labels vertically
-    ax.tick_params(axis='x', rotation=40)
-    ax.xaxis_date()  # Treat x-axis values as dates
-
+    # Show the plot in Streamlit
     st.pyplot(fig)
 
 
