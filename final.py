@@ -387,12 +387,39 @@ def backtest_strategy(ticker, start_date, end_date):
     
     return success_rate
 
+def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below):
+    df = yf.download(ticker, start=start_date, end=end_date)
+    df['DayOfWeek'] = df.index.dayofweek
+    mondays = df[df['DayOfWeek'] == 0]  # 0 is Monday
+
+    results = []
+
+    for date, row in mondays.iterrows():
+        sell_date = date
+        expiry_date = sell_date + pd.Timedelta(days=10)
+
+        if expiry_date not in df.index:
+            continue
+
+        sell_price = row['Close']
+        upper_strike = sell_price * (1 + percent_above / 100)
+        lower_strike = sell_price * (1 - percent_below / 100)
+
+        expiry_price = df.loc[expiry_date, 'Close']
+
+        result = "Profit" if expiry_price <= upper_strike and expiry_price >= lower_strike else "Loss"
+        results.append((sell_date.date(), expiry_date.date(), result))
+
+    return pd.DataFrame(results, columns=['Sell Date', 'Expiry Date', 'Result'])
+
 # Streamlit app layout
 if page_select == "Backtest":
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
     start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
-    
+    percent_above = st.sidebar.number_input("Percentage above strike price", value=2)
+    percent_below = st.sidebar.number_input("Percentage below strike price", value=2)
+
     df = yf.download(ticker, start=start_date, end=end_date)
 
     chart_type = st.selectbox("Select chart type", ["Line Chart", "Candlesticks"])
@@ -407,9 +434,9 @@ if page_select == "Backtest":
 
     # Adding an option to backtest the strategy
     if st.sidebar.button("Backtest Strategy"):
-        success_rate = backtest_strategy(ticker, start_date, end_date)
-        st.sidebar.write(f"Success Rate: {success_rate:.2f}%")
-
+        results_df = backtest_strategy(ticker, start_date, end_date, percent_above, percent_below)
+        st.write(f"Backtest Results for {ticker}")
+        st.dataframe(results_df)
 
 
 def main():
