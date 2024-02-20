@@ -298,49 +298,47 @@ if page_select == "Weekly Volatility & ^INDIAVIX":
             st.write("No data available for the selected ticker or ^INDIAVIX.")
 
 
-# Prophet model prediction
-def predict_with_prophet(df, periods=52):
-    """
-    Use Prophet to predict future weekly volatility.
-    :param df: DataFrame with 'ds' and 'y' columns.
-    :param periods: Number of weeks to predict into the future.
-    :return: Prophet model, forecast DataFrame.
-    """
-    model = Prophet(weekly_seasonality=True, yearly_seasonality=True, daily_seasonality=False)
-    model.fit(df)
-    future = model.make_future_dataframe(periods=periods, freq='W')
-    forecast = model.predict(future)
-    return model, forecast
+# Function to calculate weekly volatility and prepare it for Prophet
+def prepare_weekly_volatility_for_prophet(df_stock):
+    # Calculate weekly volatility
+    weekly_returns = df_stock['Close'].resample('W').last().pct_change().dropna()
+    weekly_volatility = weekly_returns * np.sqrt(52)  # Adjusted for weekly volatility
+    
+    # Reset index to get date column, then rename columns for Prophet
+    df_prophet = weekly_volatility.reset_index().rename(columns={'Date': 'ds', 0: 'y'})
+    
+    # Ensure 'ds' is datetime format (should be by default)
+    df_prophet['ds'] = pd.to_datetime(df_prophet['ds'])
+    
+    return df_prophet
 
-# Example of preparing the data and making predictions
+# Example usage within the Streamlit app
 if page_select == "Weekly Volatility Prediction with Prophet":
     st.title("Predict Weekly Volatility of Stock with Prophet")
 
-    # User inputs
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. TCS)', value="TCS")
-    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2019-01-01'))  # Extended back for more data
+    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2019-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
 
     if ticker:
         df_stock = fetch_stock_data(ticker, start_date, end_date)
         if not df_stock.empty:
-            weekly_volatility_stock = calculate_weekly_volatility(df_stock)
-            df_prophet = weekly_volatility_stock.reset_index().rename(columns={'Date': 'ds', 'weekly_volatility': 'y'})
+            # Prepare data for Prophet
+            df_prophet = prepare_weekly_volatility_for_prophet(df_stock)
 
-            # Predict future volatility with Prophet
-            model, forecast = predict_with_prophet(df_prophet, periods=52)  # Predict next 52 weeks
+            # Ensure we have the expected format for Prophet
+            if 'ds' in df_prophet.columns and 'y' in df_prophet.columns:
+                model, forecast = predict_with_prophet(df_prophet, periods=52)  # Next 52 weeks
 
-            # Plot the forecast
-            fig1 = model.plot(forecast)
-            st.write(fig1)
+                # Plot the forecast
+                fig1 = model.plot(forecast)
+                st.write(fig1)
 
-            # Plot components
-            fig2 = model.plot_components(forecast)
-            st.write(fig2)
-
-
-
-
+                # Plot components
+                fig2 = model.plot_components(forecast)
+                st.write(fig2)
+            else:
+                st.error("DataFrame must contain 'ds' and 'y' columns.")
 
 def main():
   mainn()
