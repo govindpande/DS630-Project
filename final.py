@@ -296,19 +296,19 @@ if page_select == "Weekly Volatility & ^INDIAVIX":
             st.plotly_chart(fig_indiavix)
         else:
             st.write("No data available for the selected ticker or ^INDIAVIX.") 
-    if not df_stock.empty:
-    # Calculate weekly volatility for the stock without annualizing
-    weekly_returns = df_stock['Close'].pct_change().dropna()  # Daily returns
-    weekly_volatility = weekly_returns.resample('W').std() * 100  # Convert to percentage
-
-    # Prepare weekly volatility for plotting
-    weekly_volatility = weekly_volatility.dropna()  # Ensure no NaN values
-
-    # Plot weekly volatility for the stock
-    fig_stock = go.Figure()
-    fig_stock.add_trace(go.Scatter(x=weekly_volatility.index, y=weekly_volatility, mode='lines+markers', name=f'{ticker} Weekly Volatility'))
-    fig_stock.update_layout(title=f"Weekly Volatility for {ticker} (Percentage)", xaxis_title='Date', yaxis_title='Weekly Volatility (%)', legend_title='Legend')
-    st.plotly_chart(fig_stock)
+        if not df_stock.empty:
+          # Calculate weekly volatility for the stock without annualizing
+          weekly_returns = df_stock['Close'].pct_change().dropna()  # Daily returns
+          weekly_volatility = weekly_returns.resample('W').std() * 100  # Convert to percentage
+      
+          # Prepare weekly volatility for plotting
+          weekly_volatility = weekly_volatility.dropna()  # Ensure no NaN values
+      
+          # Plot weekly volatility for the stock
+          fig_stock = go.Figure()
+          fig_stock.add_trace(go.Scatter(x=weekly_volatility.index, y=weekly_volatility, mode='lines+markers', name=f'{ticker} Weekly Volatility'))
+          fig_stock.update_layout(title=f"Weekly Volatility for {ticker} (Percentage)", xaxis_title='Date', yaxis_title='Weekly Volatility (%)', legend_title='Legend')
+          st.plotly_chart(fig_stock)
 
 if page_select == "Weekly Volatility Prediction with Prophet":
     plt.style.use('dark_background')  # Set plot style to dark background
