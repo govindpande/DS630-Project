@@ -17,7 +17,7 @@ st.sidebar.write("Guided by Dr Cheng")
 
 
 # Update page selection to include "Weekly Volatility & ^INDIAVIX"
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility Prediction with Prophet"])
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data","Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet"])
 
 
 
