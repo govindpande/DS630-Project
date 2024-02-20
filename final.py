@@ -249,8 +249,11 @@ def mainn():
         pr = dataf.profile_report()
         st_profile_report(pr)
     
-    
-    
+# Function to calculate weekly volatility for each week
+def calculate_weekly_volatility(df):
+    weekly_returns = df['Close'].resample('W').last().pct_change().dropna()
+    weekly_volatility = weekly_returns * np.sqrt(52)  # Removing the annualization
+    return weekly_volatility
     
 
 # Function to fetch stock data
