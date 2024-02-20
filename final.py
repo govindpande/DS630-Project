@@ -17,7 +17,7 @@ st.sidebar.write("Guided by Dr Cheng")
 
 
 # Update page selection to include "Weekly Volatility & ^INDIAVIX"
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data","Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet"])
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks","Backtest", "Price Prediction", "Bring your own data","Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet"])
 
 
 
@@ -351,6 +351,64 @@ if page_select == "Weekly Volatility Prediction with Prophet":
     # Show the plot in Streamlit
     st.pyplot(fig)
 
+# Add yfinance and pandas to your imports at the beginning of your script
+
+def backtest_strategy(ticker, start_date, end_date):
+    # Download historical stock data
+    df = yf.download(ticker, start=start_date, end=end_date)
+    
+    # Calculate the Mondays and their corresponding expiry Thursdays
+    df['DayOfWeek'] = df.index.dayofweek
+    mondays = df[df['DayOfWeek'] == 0]  # 0 is Monday
+
+    profit_count = 0
+    loss_count = 0
+
+    for date, row in mondays.iterrows():
+        sell_date = date
+        expiry_date = sell_date + pd.Timedelta(days=10)
+
+        if expiry_date not in df.index:
+            continue
+
+        sell_price = row['Close']
+        upper_strike = sell_price * 1.02
+        lower_strike = sell_price * 0.98
+
+        expiry_price = df.loc[expiry_date, 'Close']
+
+        if expiry_price <= upper_strike and expiry_price >= lower_strike:
+            profit_count += 1
+        else:
+            loss_count += 1
+
+    total_trades = profit_count + loss_count
+    success_rate = (profit_count / total_trades) * 100 if total_trades > 0 else 0
+    
+    return success_rate
+
+# Streamlit app layout
+if page_select == "Backtest":
+    ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
+    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
+    end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
+    
+    df = yf.download(ticker, start=start_date, end=end_date)
+
+    chart_type = st.selectbox("Select chart type", ["Line Chart", "Candlesticks"])
+
+    # If the user selects a line chart
+    if chart_type == "Line Chart":
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close'))
+        fig.update_layout(title=f"{ticker} Close Price", xaxis_title='Date', yaxis_title='Price')
+        st.plotly_chart(fig)
+        st.write(df)
+
+    # Adding an option to backtest the strategy
+    if st.sidebar.button("Backtest Strategy"):
+        success_rate = backtest_strategy(ticker, start_date, end_date)
+        st.sidebar.write(f"Success Rate: {success_rate:.2f}%")
 
 
 
