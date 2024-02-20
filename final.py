@@ -265,7 +265,7 @@ def calculate_weekly_volatility(df):
 
 # Function to fetch VIX data
 def fetch_vix_data(start_date, end_date):
-    vix = yf.download('^VIX', start=start_date, end=end_date)
+    vix = yf.download('^INDIAVIX', start=start_date, end=end_date)
     return vix['Close'].resample('W').last()
 
 
