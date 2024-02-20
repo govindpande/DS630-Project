@@ -323,22 +323,30 @@ if page_select == "Weekly Volatility Prediction with Prophet":
     # Prepare a new DataFrame for Prophet with weekly volatility
     df_prophet = pd.DataFrame({'ds': df['ds'], 'y': df['weekly_volatility']})
 
-    # Train Prophet model on weekly volatility
-    m = Prophet(daily_seasonality=False, weekly_seasonality=False, yearly_seasonality=True)
-    m.fit(df_prophet)
+    # Train Prophet model
+    m = Prophet(daily_seasonality=True)
+    m.fit(df)
 
-    # Predict future weekly volatility
-    future = m.make_future_dataframe(periods=forecast_days, freq='W')  # Ensure frequency matches the prediction goal
+    # Predict future prices
+    future = m.make_future_dataframe(periods=forecast_days)
     fcst = m.predict(future)
 
-    # Plot predicted weekly volatility
-    fig_prophet = m.plot(fcst)
-    plt.title('Weekly Volatility Prediction')
-    plt.ylabel('Volatility')
-    plt.xlabel('Date')
 
-    # Show the plot in Streamlit
-    st.pyplot(fig_prophet)
+    # Plot predicted prices
+    fig, ax = plt.subplots(figsize=(12, 8)) # Set figure size to 12x8 inches
+    ax.plot(df['ds'], df['y'], label='Actual')
+    ax.plot(fcst['ds'], fcst['yhat'], label='Predicted')
+    ax.fill_between(fcst['ds'], fcst['yhat_lower'], fcst['yhat_upper'], alpha=0.3, color='gray')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Price ($)')
+    ax.set_title('Stock Price Prediction')
+    ax.legend()
+
+    # Format x-axis to show date labels vertically
+    ax.tick_params(axis='x', rotation=40)
+    ax.xaxis_date()  # Treat x-axis values as dates
+
+    st.pyplot(fig)
 
 
 
