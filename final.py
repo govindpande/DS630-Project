@@ -406,11 +406,16 @@ def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below
         lower_strike = sell_price * (1 - percent_below / 100)
 
         expiry_price = df.loc[expiry_date, 'Close']
-
+        percent_change = ((expiry_price - sell_price) / sell_price) * 100
         result = "Profit" if expiry_price <= upper_strike and expiry_price >= lower_strike else "Loss"
-        results.append((sell_date.date(), expiry_date.date(), result))
 
-    return pd.DataFrame(results, columns=['Sell Date', 'Expiry Date', 'Result'])
+        # Calculate the high and low during the period
+        period_high = df.loc[sell_date:expiry_date, 'High'].max()
+        period_low = df.loc[sell_date:expiry_date, 'Low'].min()
+
+        results.append((sell_date.date(), expiry_date.date(), sell_price, upper_strike, lower_strike, period_high, period_low, percent_change, result))
+
+    return pd.DataFrame(results, columns=['Sell Date', 'Expiry Date', 'Sell Price', 'Upper Strike', 'Lower Strike', 'Period High', 'Period Low', '% Change', 'Result'])
 
 # Streamlit app layout
 if page_select == "Backtest":
@@ -437,7 +442,6 @@ if page_select == "Backtest":
         results_df = backtest_strategy(ticker, start_date, end_date, percent_above, percent_below)
         st.write(f"Backtest Results for {ticker}")
         st.dataframe(results_df)
-
 
 def main():
   mainn()
