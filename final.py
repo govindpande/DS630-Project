@@ -9,7 +9,7 @@ from prophet import Prophet
 import ydata_profiling
 from ydata_profiling import ProfileReport
 from streamlit_pandas_profiling import st_profile_report
-
+import numpy as np
 
 
 st.sidebar.header("Developed by Govind Pande")
