@@ -8,7 +8,7 @@ import plotly.graph_objs as go
 from prophet import Prophet
 import numpy as np
 import pytz
-
+import plotly.express as px
 
 st.sidebar.header("Developed by Govind Pande")
 
