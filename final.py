@@ -17,7 +17,8 @@ st.sidebar.write("Guided by Dr Cheng")
 
 
 
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview","Stock Visualizations","Share Holders Visualization","Compare Stocks","Price Prediction","Bring your own data"])
+# Add 'Weekly Volatility' to the page selection dropdown
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility"])
 
 def mainn():
   if page_select== "Project Overview":
@@ -256,7 +257,40 @@ def mainn():
 
 
 
+# Function to calculate weekly volatility
+def calculate_weekly_volatility(df):
+    # Resample to weekly, take the last price, and calculate the percent change
+    weekly_returns = df['Close'].resample('W').last().pct_change()
+    weekly_volatility = weekly_returns.std() * np.sqrt(52)  # Annualize the weekly standard deviation
+    return weekly_volatility
 
+# Weekly Volatility Page
+if page_select == "Weekly Volatility":
+    st.title("Weekly Volatility of Stock")
+
+    # User inputs for stock ticker and date range
+    ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="AAPL")
+    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
+    end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
+
+    if ticker:
+        # Fetch stock data
+        df = fetch_stock_data(ticker, start_date, end_date)
+
+        if not df.empty:
+            # Calculate weekly volatility
+            weekly_volatility = calculate_weekly_volatility(df)
+
+            # Plot weekly volatility
+            fig = go.Figure()
+            fig.add_trace(go.Bar(x=[ticker], y=[weekly_volatility], name='Weekly Volatility'))
+            fig.update_layout(title=f"Weekly Volatility for {ticker}", xaxis_title='Stock', yaxis_title='Volatility')
+
+            st.plotly_chart(fig)
+
+            st.write(f"Weekly Volatility for {ticker}: {weekly_volatility:.2%}")
+        else:
+            st.write("No data available for the selected ticker.")
 
 
 def main():
