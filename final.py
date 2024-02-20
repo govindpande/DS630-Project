@@ -15,8 +15,12 @@ import numpy as np
 st.sidebar.header("Developed by Govind Pande")
 st.sidebar.write("Guided by Dr Cheng")
 
-# Update page selection to include "Weekly Volatility & VIX"
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility & VIX"])
+
+# Update page selection to include "Weekly Volatility & ^INDIAVIX"
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX"])
+
+
+
 def mainn():
   if page_select== "Project Overview":
 
@@ -248,60 +252,47 @@ def mainn():
     
     
     
-    
-  st.markdown('-----------------------------------------------------')
-  st.text('Developed by Govind Pande - April 2023')
 
 # Function to fetch stock data
 def fetch_stock_data(ticker, start_date, end_date):
     df = yf.download(ticker, start=start_date, end=end_date)
     return df
-
-# Function to calculate weekly volatility for each week
-def calculate_weekly_volatility(df):
-    weekly_returns = df['Close'].resample('W').last().pct_change()
-    weekly_volatility = weekly_returns.std() * np.sqrt(52)  # To keep it on a weekly basis, remove the annualization
-    return weekly_returns.std()
-
-# Function to fetch VIX data
-def fetch_vix_data(start_date, end_date):
+# Function to fetch ^INDIAVIX data
+def fetch_indiavix_data(start_date, end_date):
     vix = yf.download('^INDIAVIX', start=start_date, end=end_date)
     return vix['Close'].resample('W').last()
 
-
-if page_select == "Weekly Volatility & VIX":
-    st.title("Weekly Volatility of Stock and VIX Comparison")
+if page_select == "Weekly Volatility & ^INDIAVIX":
+    st.title("Weekly Volatility of Stock and ^INDIAVIX Comparison")
 
     # User inputs for stock ticker and date range
-    ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="AAPL")
+    ticker = st.sidebar.text_input('Enter a stock ticker (e.g. TCS)', value="TCS")
     start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
 
     if ticker:
-        # Fetch stock data
+        # Fetch stock and ^INDIAVIX data
         df_stock = fetch_stock_data(ticker, start_date, end_date)
-        df_vix = fetch_vix_data(start_date, end_date)
+        df_indiavix = fetch_indiavix_data(start_date, end_date)
 
-        if not df_stock.empty and not df_vix.empty:
+        if not df_stock.empty:
             # Calculate weekly volatility for the stock
-            weekly_volatility_stock = df_stock['Close'].resample('W').last().pct_change().dropna()
-            weekly_volatility = weekly_volatility_stock * np.sqrt(52)  # Remove annualization if weekly volatility desired
+            weekly_volatility_stock = calculate_weekly_volatility(df_stock)
 
             # Plot weekly volatility for the stock
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=weekly_volatility_stock.index, y=weekly_volatility, mode='lines+markers', name=f'{ticker} Weekly Volatility'))
-            # Plot VIX for comparison
-            fig.add_trace(go.Scatter(x=df_vix.index, y=df_vix, mode='lines', name='VIX'))
+            fig_stock = go.Figure()
+            fig_stock.add_trace(go.Scatter(x=weekly_volatility_stock.index, y=weekly_volatility_stock, mode='lines+markers', name=f'{ticker} Weekly Volatility'))
+            fig_stock.update_layout(title=f"Weekly Volatility for {ticker}", xaxis_title='Date', yaxis_title='Volatility', legend_title='Legend')
+            st.plotly_chart(fig_stock)
 
-            fig.update_layout(title=f"Weekly Volatility for {ticker} & VIX Comparison", xaxis_title='Date', yaxis_title='Volatility', legend_title='Legend')
-
-            st.plotly_chart(fig)
-
-            # Display correlation information
-            correlation = weekly_volatility.corr(df_vix.reindex(weekly_volatility.index))
-            st.write(f"Correlation between {ticker} weekly volatility and VIX: {correlation:.2f}")
+        if not df_indiavix.empty:
+            # Plot ^INDIAVIX
+            fig_indiavix = go.Figure()
+            fig_indiavix.add_trace(go.Scatter(x=df_indiavix.index, y=df_indiavix, mode='lines', name='^INDIAVIX'))
+            fig_indiavix.update_layout(title="^INDIAVIX Weekly Close", xaxis_title='Date', yaxis_title='^INDIAVIX Close', legend_title='Legend')
+            st.plotly_chart(fig_indiavix)
         else:
-            st.write("No data available for the selected ticker or VIX.")
+            st.write("No data available for the selected ticker or ^INDIAVIX.")
 
 def main():
   mainn()
