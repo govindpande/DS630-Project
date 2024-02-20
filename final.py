@@ -402,16 +402,16 @@ def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below
             continue
 
         sell_price = row['Close']
-        upper_strike = sell_price * (1 + percent_above / 100)
-        lower_strike = sell_price * (1 - percent_below / 100)
-
         expiry_price = df.loc[expiry_date, 'Close']
         percent_change = ((expiry_price - sell_price) / sell_price) * 100
-        result = "Profit" if expiry_price <= upper_strike and expiry_price >= lower_strike else "Loss"
+        price_difference = expiry_price - sell_price
+        direction = "Above" if expiry_price > sell_price else "Below" if expiry_price < sell_price else "Equal"
 
-        results.append((sell_date.date(), sell_price, expiry_date.date(), expiry_price, percent_change, result))
+        result = "Profit" if ((expiry_price / sell_price - 1) * 100) <= percent_above and ((expiry_price / sell_price - 1) * 100) >= -percent_below else "Loss"
 
-    results_df = pd.DataFrame(results, columns=['Sell Date', 'Sell Price', 'Expiry Date', 'Expiry Price', '% Change', 'Result'])
+        results.append((sell_date.date(), sell_price, expiry_date.date(), expiry_price, percent_change, price_difference, direction, result))
+
+    results_df = pd.DataFrame(results, columns=['Sell Date', 'Sell Price', 'Expiry Date', 'Expiry Price', '% Change', 'Price Difference', 'Direction', 'Result'])
 
     # Calculate the success rate
     success_rate = (results_df['Result'] == 'Profit').mean() * 100
@@ -420,7 +420,6 @@ def backtest_strategy(ticker, start_date, end_date, percent_above, percent_below
 
 # Streamlit app layout
 if page_select == "Backtest":
-    
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
     start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
@@ -429,7 +428,12 @@ if page_select == "Backtest":
 
     chart_type = st.selectbox("Select chart type", ["Line Chart", "Candlesticks"])
 
-
+    # If the user selects a line chart
+    if chart_type == "Line Chart":
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close'))
+        fig.update_layout(title=f"{ticker} Close Price", xaxis_title='Date', yaxis_title='Price')
+        st.plotly_chart(fig)
 
     # Adding an option to backtest the strategy
     if st.sidebar.button("Backtest Strategy"):
