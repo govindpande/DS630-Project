@@ -412,10 +412,18 @@ if page_select == "Backtest":
         st.dataframe(results_df)
         st.write(f"Success Rate: {success_rate:.2f}%")
 
-def plot_weekly_movement(df, ticker, start_date, end_date, result_info):
+def plot_weekly_movement(df, ticker, start_date, end_date, sell_price, percent_above, percent_below, result_info):
+    # Calculate the upper and lower strike prices
+    upper_strike = sell_price * (1 + percent_above / 100)
+    lower_strike = sell_price * (1 - percent_below / 100)
+    
     # Create a Plotly graph for the given week
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close Price'))
+    
+    # Add horizontal lines for upper and lower strike prices
+    fig.add_hline(y=upper_strike, line_dash="dash", line_color="green", annotation_text="Upper Strike")
+    fig.add_hline(y=lower_strike, line_dash="dash", line_color="red", annotation_text="Lower Strike")
     
     # Setting up the title to include profit/loss and other info
     title_text = f"{ticker} Price Movement ({start_date} to {end_date}): {result_info}"
@@ -423,8 +431,10 @@ def plot_weekly_movement(df, ticker, start_date, end_date, result_info):
     
     return fig
 
-# Streamlit app layout
-if page_select == "Backtest Viz":
+# The main part of the Streamlit app where you call backtest_strategy and plot each week's movement remains unchanged.
+# Ensure when calling plot_weekly_movement, you now also pass sell_price, percent_above, and percent_below along with the other parameters.
+
+if page_select == "Backtest":
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
     start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
@@ -441,10 +451,8 @@ if page_select == "Backtest Viz":
         for index, row in results_df.iterrows():
             week_df = yf.download(ticker, start=row['Sell Date'], end=row['Expiry Date'])
             result_info = f"Result: {row['Result']}, % Change: {row['% Change']:.2f}, Avg VIX: {row['Avg VIX']:.2f}"
-            fig = plot_weekly_movement(week_df, ticker, row['Sell Date'], row['Expiry Date'], result_info)
+            fig = plot_weekly_movement(week_df, ticker, row['Sell Date'], row['Expiry Date'], row['Sell Price'], percent_above, percent_below, result_info)
             st.plotly_chart(fig)
-
-
 
 
 def main():
