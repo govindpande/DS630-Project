@@ -417,6 +417,9 @@ def plot_weekly_movement(df, ticker, start_date, end_date, sell_price, percent_a
     upper_strike = sell_price * (1 + percent_above / 100)
     lower_strike = sell_price * (1 - percent_below / 100)
     
+    # Count the number of days within the profit zone
+    days_within_profit_zone = ((df['Close'] >= lower_strike) & (df['Close'] <= upper_strike)).sum()
+    
     # Create a Plotly graph for the given week
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close Price'))
@@ -425,8 +428,8 @@ def plot_weekly_movement(df, ticker, start_date, end_date, sell_price, percent_a
     fig.add_hline(y=upper_strike, line_dash="dash", line_color="green", annotation_text="Upper Strike")
     fig.add_hline(y=lower_strike, line_dash="dash", line_color="red", annotation_text="Lower Strike")
     
-    # Setting up the title to include profit/loss and other info
-    title_text = f"{ticker} Price Movement ({start_date} to {end_date}): {result_info}"
+    # Setting up the title to include profit/loss, other info, and days within profit zone
+    title_text = f"{ticker} Price Movement ({start_date} to {end_date}): {result_info}, Days in Profit Zone: {days_within_profit_zone}"
     fig.update_layout(title=title_text, xaxis_title='Date', yaxis_title='Price')
     
     return fig
