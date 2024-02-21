@@ -456,6 +456,14 @@ if page_select == "Backtest Viz":
             st.plotly_chart(fig)
 
 if page_select == "NIFTY 500 Sentiment Dashboard":
+      
+    @st.cache
+    def load_data():
+        article_data = pd.read_csv('./datasets/NIFTY_500_Articles.csv', index_col=0)
+        ticker_metadata = pd.read_csv('./datasets/ticker_metadata.csv', index_col=0)
+        return article_data, ticker_metadata
+
+
       article_data, ticker_metadata = load_data()
       
       # Process data
