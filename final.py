@@ -468,9 +468,7 @@ if page_select == "NIFTY 500 Sentiment Dashboard":
   fig.update_traces(textposition="middle center")
   fig.update_layout(height=800)
   fig.update_layout(margin = dict(t=30, l=10, r=10, b=10), font_size=20)
-  # Streamlit App
-  st.set_page_config(page_title = "Nifty 500 Sentiment Analyzer", layout = "wide")
-  st.header("Nifty 500 stocks Sentiment Analyzer")
+
   st.plotly_chart(fig,height=800,use_container_width=True)
   
 
