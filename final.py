@@ -456,42 +456,36 @@ if page_select == "Backtest Viz":
             st.plotly_chart(fig)
 
 
+@st.cache
+def load_data():
+    article_data = pd.read_csv('./datasets/NIFTY_500_Articles.csv', index_col=0)
+    ticker_metadata = pd.read_csv('./datasets/ticker_metadata.csv', index_col=0)
+    return article_data, ticker_metadata
 
     if page_select == "NIFTY 500 Sentiment Dashboard":
-        # Assuming you have the sentiment analysis dashboard code here
-        # Read CSV
-        article_data = pd.read_csv('./datasets/NIFTY_500_Articles.csv', index_col=0)
-        ticker_metadata = pd.read_csv('./datasets/ticker_metadata.csv', index_col=0)
+      article_data, ticker_metadata = load_data()
+      
+      # Process data
+      ticker_scores = article_data.groupby('Ticker').mean().reset_index()
+      final_df = pd.merge(ticker_metadata, ticker_scores, on='Ticker', how='inner')
+      final_df.columns = ['Symbol', 'Macro-Sector', 'Industry', 'Market Cap (Billion Rs)', 'Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score']
+      
+      # Plot
+      st.title("NIFTY 500 Sentiment Dashboard")
+      st.write("This dashboard visualizes the sentiment analysis of NIFTY 500 companies based on recent articles.")
+      
+      fig = px.treemap(
+          final_df, path=[px.Constant('Nifty 500'), 'Macro-Sector', 'Industry', 'Symbol'], values='Market Cap (Billion Rs)', color='Sentiment Score',
+          hover_data=['Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score'], color_continuous_scale=['#FF0000', "#000000", '#00FF00'], color_continuous_midpoint=0
+      )
+      fig.data[0].customdata = final_df[['Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score']]
+      fig.data[0].texttemplate = "%{label}<br>%{customdata[4]}"
+      fig.update_traces(textposition="middle center")
+      fig.update_layout(margin=dict(t=30, l=10, r=10, b=10), font_size=20)
+      
+      # Display Plot
+      st.plotly_chart(fig, use_container_width=True)
 
-        # Aggregate article scores by ticker name
-        ticker_scores = article_data.groupby('Ticker').mean().reset_index()
-
-        # Merge dataframes
-        final_df = pd.merge(ticker_metadata, ticker_scores, on='Ticker', how='inner')
-
-        # Change column names for clarity
-        final_df.columns = ['Symbol', 'Macro-Sector', 'Industry', 'Market Cap (Billion Rs)', 'Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score']
-
-        # Generating Plots
-        st.write('Generating NIFTY 500 Sentiment Analysis Dashboard')
-        fig = px.treemap(
-            final_df,
-            path=[px.Constant('Nifty 500'), 'Macro-Sector', 'Industry', 'Symbol'],
-            values='Market Cap (Billion Rs)',
-            color='Sentiment Score',
-            hover_data=['Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score'],
-            color_continuous_scale=['#FF0000', "#000000", '#00FF00'],
-            color_continuous_midpoint=0
-        )
-        fig.data[0].customdata = final_df[['Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score']]
-        fig.data[0].texttemplate = "%{label}<br>%{customdata[4]}"
-        fig.update_traces(textposition="middle center")
-        fig.update_layout(margin=dict(t=30, l=10, r=10, b=10), font_size=20)
-
-        # Display the Plotly figure in Streamlit
-        st.plotly_chart(fig)
-
-    # Add other sections of your Streamlit app here, similar to the existing structure
 
 def main():
     mainn()
