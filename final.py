@@ -18,6 +18,8 @@ st.sidebar.header("Developed by Govind Pande")
 page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Backtest", "Backtest Viz", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet", "NIFTY 500 Sentiment Dashboard"])
 
 
+st.set_page_config(layout = "wide")
+
 
 def mainn():
   if page_select== "Project Overview":
