@@ -455,14 +455,7 @@ if page_select == "Backtest Viz":
             fig = plot_weekly_movement(week_df, ticker, row['Sell Date'], row['Expiry Date'], row['Sell Price'], percent_above, percent_below, result_info)
             st.plotly_chart(fig)
 
-
-@st.cache
-def load_data():
-    article_data = pd.read_csv('./datasets/NIFTY_500_Articles.csv', index_col=0)
-    ticker_metadata = pd.read_csv('./datasets/ticker_metadata.csv', index_col=0)
-    return article_data, ticker_metadata
-
-    if page_select == "NIFTY 500 Sentiment Dashboard":
+if page_select == "NIFTY 500 Sentiment Dashboard":
       article_data, ticker_metadata = load_data()
       
       # Process data
@@ -485,6 +478,18 @@ def load_data():
       
       # Display Plot
       st.plotly_chart(fig, use_container_width=True)
+
+
+
+
+
+@st.cache
+def load_data():
+    article_data = pd.read_csv('./datasets/NIFTY_500_Articles.csv', index_col=0)
+    ticker_metadata = pd.read_csv('./datasets/ticker_metadata.csv', index_col=0)
+    return article_data, ticker_metadata
+
+
 
 
 def main():
