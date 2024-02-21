@@ -456,20 +456,21 @@ if page_select == "Backtest Viz":
             st.plotly_chart(fig)
 
 if page_select == "NIFTY 500 Sentiment Dashboard":
-  sentiment_data = pd.read_csv('sentiment_data.csv')
+    sentiment_data = pd.read_csv('sentiment_data.csv')
   
-  # Plotting
-  fig = px.treemap(
-      sentiment_data, path=[px.Constant('Nifty 500'), 'Sector', 'Industry', 'Symbol'], values='MCap (Billion)', color='Sentiment Score',
-      hover_data=['Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score'], color_continuous_scale=['#FF0000', "#000000", '#00FF00'], color_continuous_midpoint=0
-      )
-  fig.data[0].customdata = sentiment_data[['Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score']]
-  fig.data[0].texttemplate = "%{label}<br>%{customdata[4]}"
-  fig.update_traces(textposition="middle center")
-  fig.update_layout(height=800)
-  fig.update_layout(margin = dict(t=30, l=10, r=10, b=10), font_size=20)
-
-  st.plotly_chart(fig,height=800,use_container_width=True)
+    # Plotting
+    fig = px.treemap(
+        sentiment_data, path=[px.Constant('Nifty 500'), 'Sector', 'Industry', 'Symbol'], values='MCap (Billion)', color='Sentiment Score',
+        hover_data=['Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score'], color_continuous_scale=['#FF0000', "#000000", '#00FF00'], color_continuous_midpoint=0
+    )
+    fig.data[0].customdata = sentiment_data[['Company Name', 'Negative', 'Neutral', 'Positive', 'Sentiment Score']]
+    fig.data[0].texttemplate = "%{label}<br>%{customdata[4]}"
+    fig.update_traces(textposition="middle center")
+    fig.update_layout(height=800)
+    # Adjusting layout for a wider appearance
+    fig.update_layout(margin=dict(t=30, l=10, r=10, b=10), font_size=20)
+    # Using container width to make the plot responsive
+    st.plotly_chart(fig, use_container_width=True)
   
 
 
