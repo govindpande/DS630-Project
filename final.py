@@ -17,11 +17,8 @@ st.sidebar.header("Developed by Govind Pande")
 # Update page selection to include "NIFTY 500 Sentiment Dashboard"
 page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Backtest", "Backtest Viz", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet", "NIFTY 500 Sentiment Dashboard"])
 
-
-st.set_page_config(layout = "wide")
-
-
 def mainn():
+  st.set_page_config(layout = "wide")
   if page_select== "Project Overview":
 
     st.title("Stock Price Analysis and Price Preddiction Project")
