@@ -436,7 +436,7 @@ def plot_weekly_movement(df, ticker, start_date, end_date, sell_price, percent_a
 
 if page_select == "Backtest Viz":
     ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
-    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
+    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2024-01-01'))
     end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
     percent_above = st.sidebar.number_input("Percentage above strike price", value=2)
     percent_below = st.sidebar.number_input("Percentage below strike price", value=2)
