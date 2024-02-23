@@ -46,64 +46,52 @@ def mainn():
 
 
 
-
-  if page_select== "Stock Visualizations":
-    ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)',value="GOOGL")
-    start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
-    end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
-    
-    df = yf.download(ticker, start=start_date, end=end_date)
-
-    chart_type = st.selectbox("Select chart type", ["Line Chart", "Candlesticks"])
-
-    # If the user selects a line chart
-    if chart_type == "Line Chart":
-      # Create a line chart using Plotly
-      fig = go.Figure()
-      fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close'))
-
-      # Set the chart title and axis labels
-      fig.update_layout(title=f"{ticker} Close Price", xaxis_title='Date', yaxis_title='Price')
-
-      # Display the chart in Streamlit
-      st.plotly_chart(fig)
-      st.write(df)
-
-
-
-
-    # If the user selects a bar chart
-    if chart_type == "Candlesticks":
-        def get_stock_data(ticker, freq, start_date, end_date):
-          data = yf.download(ticker, interval=freq, start=start_date, end=end_date)
+  # Assuming the "Stock Visualizations" page is selected
+  if page_select == "Stock Visualizations":
+      ticker = st.sidebar.text_input('Enter a stock ticker (e.g. AAPL)', value="GOOGL")
+      start_date = st.sidebar.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
+      end_date = st.sidebar.date_input("Select end date", value=pd.to_datetime('today'))
+  
+      # Function to fetch stock data with a specified interval
+      def get_stock_data(ticker, start_date, end_date, interval='1d'):
+          data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
           return data
-        # Define a dictionary to map frequency strings to yfinance intervals
-        interval_map = {
-            "1 day": "1d",
-            "1 week": "1wk",
-            "1 month": "1mo"
-        }
-
-        # Ask the user to enter a stock ticker and select a frequency, start date, and end date
-        #ticker = st.text_input('Enter a stock ticker (e.g. AAPL)')
-        freq = st.selectbox("Select candle frequency", options=list(interval_map.keys()))
-        #start = st.date_input("Select start date", value=pd.to_datetime('2020-01-01'))
-        #end = st.date_input("Select end date", value=pd.to_datetime('today'))
-
-        # Display the selected stock ticker, frequency, start date, and end date
-        if ticker:
-            st.write(f"You selected: {ticker}")
-            st.write(f"Candle frequency: {freq}")
-            st.write(f"Start date: {start_date}")
-            st.write(f"End date: {end_date}")
-            interval = interval_map[freq]
-            stock_data = get_stock_data(ticker, interval, start_date, end_date)
-            fig = go.Figure(data=[go.Candlestick(x=stock_data.index,
-                                                 open=stock_data['Open'],
-                                                 high=stock_data['High'],
-                                                 low=stock_data['Low'],
-                                                 close=stock_data['Close'])])
-            st.plotly_chart(fig)
+  
+      chart_type = st.selectbox("Select chart type", ["Line Chart", "Candlesticks"])
+  
+      if chart_type == "Candlesticks":
+          # Updated options list to include new intervals
+          freq = st.selectbox("Select candle frequency", options=[
+              "1 minute", "2 minutes", "3 minutes", "5 minutes", 
+              "1 hour", "2 hours", "5 hours", "1 day", "2 days", "7 days"])
+          
+          # Mapping the user-friendly options to yfinance interval codes
+          interval_map = {
+              "1 minute": "1m", "2 minutes": "2m", "3 minutes": "3m", "5 minutes": "5m",
+              "1 hour": "1h", "2 hours": "2h", "5 hours": "5h",
+              "1 day": "1d", "2 days": "2d", "7 days": "1wk"  # Note: yfinance doesn't support "7d" directly, using "1wk" as closest alternative
+          }
+          interval = interval_map[freq]
+          df = get_stock_data(ticker, start_date, end_date, interval)
+      else:
+          # Default to daily data for line chart
+          df = get_stock_data(ticker, start_date, end_date, '1d')
+  
+      # Line Chart visualization
+      if chart_type == "Line Chart":
+          fig = go.Figure()
+          fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', name='Close'))
+          fig.update_layout(title=f"{ticker} Close Price", xaxis_title='Date', yaxis_title='Price')
+          st.plotly_chart(fig)
+  
+      # Candlestick visualization
+      elif chart_type == "Candlesticks":
+          fig = go.Figure(data=[go.Candlestick(x=df.index,
+                                               open=df['Open'],
+                                               high=df['High'],
+                                               low=df['Low'],
+                                               close=df['Close'])])
+          st.plotly_chart(fig)
 
       
   if page_select == "Share Holders Visualization":
