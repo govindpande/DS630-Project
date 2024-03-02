@@ -460,18 +460,17 @@ if page_select == "NIFTY 500 Sentiment Dashboard":
     # Using container width to make the plot responsive
     st.plotly_chart(fig, use_container_width=True)
   
+# Assuming this code is inside a Streamlit app function
 if page_select == "Option Price Analysis":
     uploaded_file = st.file_uploader("Upload your option price CSV", type="csv")
     if uploaded_file is not None:
         # Read the uploaded CSV file
         option_data = pd.read_csv(uploaded_file)
-        option_data['Date'] = pd.to_datetime(option_data['Date'], errors='coerce')
-        option_data.dropna(subset=['Date'], inplace=True)
-        option_data.sort_values('Date', inplace=True)
-        option_data.set_index('Date', inplace=True)
-
-        # Drop rows with NaN values if necessary
-        option_data.dropna(inplace=True)
+        # Convert 'Date' from string to datetime
+        option_data['Date'] = pd.to_datetime(option_data['Date'], errors='coerce', format='%a %b %d %Y %H:%M:%S GMT-0500 (Eastern Standard Time)')
+        option_data.dropna(subset=['Date'], inplace=True)  # Remove rows with NaN dates
+        option_data.sort_values('Date', inplace=True)  # Sort data by date
+        option_data.set_index('Date', inplace=True)  # Set 'Date' as the index
 
         # Create Plotly graph
         fig = go.Figure()
@@ -486,7 +485,7 @@ if page_select == "Option Price Analysis":
                           yaxis_title='Price',
                           legend_title='Price Type')
 
-        # Display the figure
+        # Display the figure in Streamlit
         st.plotly_chart(fig)
 
 def main():
