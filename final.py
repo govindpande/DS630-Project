@@ -15,7 +15,7 @@ st.sidebar.header("Developed by Govind Pande")
 
 
 # Update page selection to include "NIFTY 500 Sentiment Dashboard"
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Backtest", "Backtest Viz", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet", "NIFTY 500 Sentiment Dashboard"])
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Backtest", "Backtest Viz", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet", "NIFTY 500 Sentiment Dashboard", "Option Price Analysis"])
 
 def mainn():
 
@@ -461,7 +461,31 @@ if page_select == "NIFTY 500 Sentiment Dashboard":
   
 
 
+page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Backtest", "Backtest Viz", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet", "NIFTY 500 Sentiment Dashboard", "Option Price Analysis"])
 
+
+if page_select == "Option Price Analysis":
+  uploaded_file = st.file_uploader("Upload your option price CSV", type="csv")
+  if uploaded_file is not None:
+            # Read the uploaded CSV file
+            option_data = pd.read_csv(uploaded_file)
+            st.write(option_data.head())  # Display the first few rows
+
+            # Plotting the closing prices
+            fig = go.Figure(data=[go.Scatter(x=option_data['Date'], y=option_data['Close'], mode='lines', name='Close Price')])
+            fig.update_layout(title="Option Price Movement", xaxis_title='Date', yaxis_title='Close Price')
+            st.plotly_chart(fig)
+
+            # Calculating and displaying basic statistics
+            st.subheader("Basic Statistics:")
+            st.write(option_data.describe())
+
+            # Detecting significant price movements
+            st.subheader("Significant Price Movements:")
+            threshold = st.number_input('Set threshold for significant movement (%)', value=5)
+            option_data['Significant Movement'] = ((option_data['Close'].pct_change() * 100).abs() > threshold)
+            significant_movements = option_data[option_data['Significant Movement']]
+            st.write(significant_movements)
 
 
 def main():
