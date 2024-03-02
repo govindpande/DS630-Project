@@ -472,6 +472,18 @@ if page_select == "Option Price Analysis":
         option_data.sort_values('Date', inplace=True)  # Sort data by date
         option_data.set_index('Date', inplace=True)  # Set 'Date' as the index
 
+        # Extracting low and high prices at market close (15:30)
+        market_close_time = '15:30:00'
+        # Filter rows for market close time
+        market_close_prices = option_data.at_time(market_close_time)
+        if not market_close_prices.empty:
+            high_at_close = market_close_prices['High'].max()
+            low_at_close = market_close_prices['Low'].min()
+        else:
+            st.write("No data available for the market close time.")
+            high_at_close = None
+            low_at_close = None
+
         # Create Plotly graph
         fig = go.Figure()
         # Add traces for Open, High, and Low prices
@@ -479,15 +491,22 @@ if page_select == "Option Price Analysis":
         fig.add_trace(go.Scatter(x=option_data.index, y=option_data['High'], mode='lines', name='High'))
         fig.add_trace(go.Scatter(x=option_data.index, y=option_data['Low'], mode='lines', name='Low'))
 
+        # Add horizontal line for High at market close
+        if high_at_close is not None:
+            fig.add_hline(y=high_at_close, line_dash="dash", line_color="green", annotation_text="High at Close")
+
+        # Add horizontal line for Low at market close
+        if low_at_close is not None:
+            fig.add_hline(y=low_at_close, line_dash="dash", line_color="red", annotation_text="Low at Close")
+
         # Update layout
-        fig.update_layout(title='Open, High, and Low Prices',
+        fig.update_layout(title='Open, High, and Low Prices with Market Close Lines',
                           xaxis_title='Date',
                           yaxis_title='Price',
                           legend_title='Price Type')
 
         # Display the figure in Streamlit
         st.plotly_chart(fig)
-
 def main():
     mainn()
 
