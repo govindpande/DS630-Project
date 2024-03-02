@@ -461,30 +461,59 @@ if page_select == "NIFTY 500 Sentiment Dashboard":
   
 
 
+  
+  
+  if page_select == "Option Price Analysis":
+      uploaded_file = st.file_uploader("Upload your option price CSV", type="csv")
+      if uploaded_file is not None:
+          # Read the uploaded CSV file
+          option_data = pd.read_csv(uploaded_file)
+          
+          # Convert 'Date' column to datetime and set it as index
+          option_data['Date'] = pd.to_datetime(option_data['Date'])
+          option_data.set_index('Date', inplace=True)
+  
+          # Get unique days
+          unique_days = option_data.index.date
+          unique_days = np.unique(unique_days)
+  
+          # Loop through each day to plot the first and last 15 minutes
+          for day in unique_days:
+              # Filter data for the current day
+              day_data = option_data[option_data.index.date == day]
+  
+              # Select first 15 minutes and last 15 minutes
+              first_15_min = day_data.between_time('09:15', '09:30')
+              last_15_min = day_data.between_time('15:15', '15:30')
+  
+              # Plot if there is enough data
+              if not first_15_min.empty and not last_15_min.empty:
+                  # Plot for last 15 minutes
+                  fig_last = go.Figure(data=[go.Candlestick(x=last_15_min.index,
+                                                            open=last_15_min['Open'],
+                                                            high=last_15_min['High'],
+                                                            low=last_15_min['Low'],
+                                                            close=last_15_min['Close'])])
+                  fig_last.update_layout(title=f"Last 15 Minutes of {day}", xaxis_title='Time', yaxis_title='Price')
+                  st.plotly_chart(fig_last)
+  
+                  # Plot for first 15 minutes of the next day
+                  if day + timedelta(days=1) in unique_days:
+                      next_day_data = option_data[option_data.index.date == day + timedelta(days=1)]
+                      next_first_15_min = next_day_data.between_time('09:15', '09:30')
+                      if not next_first_15_min.empty:
+                          close_price_last_day = last_15_min['Close'][-1]
+                          percent_above = ((next_first_15_min['High'].max() - close_price_last_day) / close_price_last_day) * 100
+                          percent_below = ((close_price_last_day - next_first_15_min['Low'].min()) / close_price_last_day) * 100
+                          fig_next = go.Figure(data=[go.Candlestick(x=next_first_15_min.index,
+                                                                    open=next_first_15_min['Open'],
+                                                                    high=next_first_15_min['High'],
+                                                                    low=next_first_15_min['Low'],
+                                                                    close=next_first_15_min['Close'])])
+                          fig_next.update_layout(title=f"First 15 Minutes of {day + timedelta(days=1)} ({percent_above:.2f}% above & {percent_below:.2f}% below previous close)",
+                                                 xaxis_title='Time', yaxis_title='Price')
+                          st.plotly_chart(fig_next)
 
-
-if page_select == "Option Price Analysis":
-  uploaded_file = st.file_uploader("Upload your option price CSV", type="csv")
-  if uploaded_file is not None:
-            # Read the uploaded CSV file
-            option_data = pd.read_csv(uploaded_file)
-            st.write(option_data.head())  # Display the first few rows
-
-            # Plotting the closing prices
-            fig = go.Figure(data=[go.Scatter(x=option_data['Date'], y=option_data['Close'], mode='lines', name='Close Price')])
-            fig.update_layout(title="Option Price Movement", xaxis_title='Date', yaxis_title='Close Price')
-            st.plotly_chart(fig)
-
-            # Calculating and displaying basic statistics
-            st.subheader("Basic Statistics:")
-            st.write(option_data.describe())
-
-            # Detecting significant price movements
-            st.subheader("Significant Price Movements:")
-            threshold = st.number_input('Set threshold for significant movement (%)', value=5)
-            option_data['Significant Movement'] = ((option_data['Close'].pct_change() * 100).abs() > threshold)
-            significant_movements = option_data[option_data['Significant Movement']]
-            st.write(significant_movements)
 
 
 def main():
