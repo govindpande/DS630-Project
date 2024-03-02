@@ -473,10 +473,21 @@ if page_select == "Option Price Analysis":
         # Drop rows with NaN values if necessary
         option_data.dropna(inplace=True)
 
-        # Display open, high, and low prices
-        st.subheader('Open, High, and Low Prices')
-        st.line_chart(option_data[['Open', 'High', 'Low']])
+        # Create Plotly graph
+        fig = go.Figure()
+        # Add traces for Open, High, and Low prices
+        fig.add_trace(go.Scatter(x=option_data.index, y=option_data['Open'], mode='lines', name='Open'))
+        fig.add_trace(go.Scatter(x=option_data.index, y=option_data['High'], mode='lines', name='High'))
+        fig.add_trace(go.Scatter(x=option_data.index, y=option_data['Low'], mode='lines', name='Low'))
 
+        # Update layout
+        fig.update_layout(title='Open, High, and Low Prices',
+                          xaxis_title='Date',
+                          yaxis_title='Price',
+                          legend_title='Price Type')
+
+        # Display the figure
+        st.plotly_chart(fig)
 
 def main():
     mainn()
