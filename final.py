@@ -461,7 +461,6 @@ if page_select == "NIFTY 500 Sentiment Dashboard":
   
 
 
-page_select = st.sidebar.selectbox("Choose Section", ["Project Overview", "Stock Visualizations", "Share Holders Visualization", "Compare Stocks", "Backtest", "Backtest Viz", "Price Prediction", "Bring your own data", "Weekly Volatility & ^INDIAVIX", "Weekly Volatility Prediction with Prophet", "NIFTY 500 Sentiment Dashboard", "Option Price Analysis"])
 
 
 if page_select == "Option Price Analysis":
