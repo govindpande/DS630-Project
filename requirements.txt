@@ -7,4 +7,3 @@ matplotlib
 Prophet
 Datetime
 pytz==2023.3
-scikit-learn
