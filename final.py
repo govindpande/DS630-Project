@@ -459,16 +459,23 @@ if page_select == "NIFTY 500 Sentiment Dashboard":
     # Using container width to make the plot responsive
     st.plotly_chart(fig, use_container_width=True)
   
-
 if page_select == "Option Price Analysis":
     uploaded_file = st.file_uploader("Upload your option price CSV", type="csv")
     if uploaded_file is not None:
         # Read the uploaded CSV file
         option_data = pd.read_csv(uploaded_file)
+
+        # Try parsing the 'Date' column with specific format
+        try:
+            option_data['Date'] = pd.to_datetime(option_data['Date'], format='%a %b %d %Y %H:%M:%S GMT%z (%Z)')
+        except ValueError:
+            # If parsing fails, fall back to default parser without specifying format
+            option_data['Date'] = pd.to_datetime(option_data['Date'])
         
-        # Convert 'Date' column to datetime and set it as index
-        option_data['Date'] = pd.to_datetime(option_data['Date'])
         option_data.set_index('Date', inplace=True)
+
+        # Continue with the rest of your code...
+
 
         # Get unique days
         unique_days = option_data.index.date
