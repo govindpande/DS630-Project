@@ -464,62 +464,51 @@ if page_select == "Option Price Analysis":
     if uploaded_file is not None:
         # Read the uploaded CSV file
         option_data = pd.read_csv(uploaded_file)
-
-        # Try parsing the 'Date' column with specific format
-        try:
-            option_data['Date'] = pd.to_datetime(option_data['Date'], format='%a %b %d %Y %H:%M:%S GMT%z (%Z)')
-        except ValueError:
-            # If parsing fails, fall back to default parser without specifying format
-            option_data['Date'] = pd.to_datetime(option_data['Date'])
         
+        # Attempt to directly convert 'Date' column to datetime without a specific format
+        option_data['Date'] = pd.to_datetime(option_data['Date'], errors='coerce')
+        
+        # Drop rows where 'Date' could not be converted
+        option_data.dropna(subset=['Date'], inplace=True)
+        
+        # Ensure the data is sorted by Date
+        option_data.sort_values('Date', inplace=True)
+        
+        # Set 'Date' as the index
         option_data.set_index('Date', inplace=True)
-
-        # Continue with the rest of your code...
-
-
+        
         # Get unique days
-        unique_days = option_data.index.date
-        unique_days = np.unique(unique_days)
+        unique_days = option_data.index.normalize().unique()
 
-        # Loop through each day to plot the first and last 15 minutes
+        # Loop through each unique day
         for day in unique_days:
-            # Filter data for the current day
-            day_data = option_data[option_data.index.date == day]
+            # Extract data for the current day
+            daily_data = option_data.loc[option_data.index.normalize() == day]
+            
+            # Check if there is enough data for the day
+            if not daily_data.empty:
+                # Get the first 30 minutes and last 30 minutes data
+                first_30_min = daily_data.between_time('09:15', '09:45')
+                last_30_min = daily_data.between_time('15:00', '15:30')
+                
+                # Plot if there is enough data
+                if not first_30_min.empty:
+                    fig_first = go.Figure(data=[go.Candlestick(x=first_30_min.index,
+                                                               open=first_30_min['Open'],
+                                                               high=first_30_min['High'],
+                                                               low=first_30_min['Low'],
+                                                               close=first_30_min['Close'])])
+                    fig_first.update_layout(title=f"First 30 Minutes of {day.date()}", xaxis_title='Time', yaxis_title='Price')
+                    st.plotly_chart(fig_first)
 
-            # Select first 15 minutes and last 15 minutes
-            first_15_min = day_data.between_time('09:15', '09:30')
-            last_15_min = day_data.between_time('15:15', '15:30')
-
-            # Plot if there is enough data
-            if not first_15_min.empty and not last_15_min.empty:
-                # Plot for last 15 minutes
-                fig_last = go.Figure(data=[go.Candlestick(x=last_15_min.index,
-                                                          open=last_15_min['Open'],
-                                                          high=last_15_min['High'],
-                                                          low=last_15_min['Low'],
-                                                          close=last_15_min['Close'])])
-                fig_last.update_layout(title=f"Last 15 Minutes of {day}", xaxis_title='Time', yaxis_title='Price')
-                st.plotly_chart(fig_last)
-
-                # Plot for first 15 minutes of the next day
-                if day + timedelta(days=1) in unique_days:
-                    next_day_data = option_data[option_data.index.date == day + timedelta(days=1)]
-                    next_first_15_min = next_day_data.between_time('09:15', '09:30')
-                    if not next_first_15_min.empty:
-                        close_price_last_day = last_15_min['Close'][-1]
-                        percent_above = ((next_first_15_min['High'].max() - close_price_last_day) / close_price_last_day) * 100
-                        percent_below = ((close_price_last_day - next_first_15_min['Low'].min()) / close_price_last_day) * 100
-                        fig_next = go.Figure(data=[go.Candlestick(x=next_first_15_min.index,
-                                                                  open=next_first_15_min['Open'],
-                                                                  high=next_first_15_min['High'],
-                                                                  low=next_first_15_min['Low'],
-                                                                  close=next_first_15_min['Close'])])
-                        fig_next.update_layout(title=f"First 15 Minutes of {day + timedelta(days=1)} ({percent_above:.2f}% above & {percent_below:.2f}% below previous close)",
-                                               xaxis_title='Time', yaxis_title='Price')
-                        st.plotly_chart(fig_next)
-
-  
-
+                if not last_30_min.empty:
+                    fig_last = go.Figure(data=[go.Candlestick(x=last_30_min.index,
+                                                              open=last_30_min['Open'],
+                                                              high=last_30_min['High'],
+                                                              low=last_30_min['Low'],
+                                                              close=last_30_min['Close'])])
+                    fig_last.update_layout(title=f"Last 30 Minutes of {day.date()}", xaxis_title='Time', yaxis_title='Price')
+                    st.plotly_chart(fig_last)
 
 
 
