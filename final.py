@@ -473,7 +473,7 @@ if page_select == "Option Price Analysis":
         option_data.set_index('Date', inplace=True)  # Set 'Date' as the index
 
         # Extracting low and high prices at market close (15:30)
-        market_close_time = '15:30:00'
+        market_close_time = '15:29:00'
         # Filter rows for market close time
         market_close_prices = option_data.at_time(market_close_time)
         if not market_close_prices.empty:
