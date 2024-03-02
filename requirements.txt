@@ -6,6 +6,5 @@ streamlit
 matplotlib	
 Prophet
 Datetime
-ydata-profiling
-streamlit_pandas_profiling
 pytz==2023.3
+scikit-learn
