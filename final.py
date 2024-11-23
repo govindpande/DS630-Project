@@ -32,6 +32,7 @@ page_select = st.sidebar.selectbox(
         "NIFTY 500 Sentiment Dashboard",
         "Option Price Analysis",
         "Delta Neutral Hedging",  # Added new section here
+        "Delta Neutral Backtest",
     ],
 )
 
@@ -177,6 +178,39 @@ def mainn():
                     st.error(f"Error placing order: {e}")
         else:
             st.write("Connect to the KiteTicker to place orders.")
+
+    if page_select == "Delta Neutral Backtest":
+        st.title("Delta Neutral Strategy Backtest")
+    
+        # User inputs
+        ticker = st.text_input("Enter Stock Ticker (e.g., AAPL)", value="AAPL")
+        start_date = st.date_input("Start Date", value=pd.to_datetime('2020-01-01'))
+        end_date = st.date_input("End Date", value=pd.to_datetime('2021-01-01'))
+        option_type = st.selectbox("Option Type", ['call', 'put'])
+        strike_offset = st.number_input("Strike Price Offset (%)", value=0.0)
+        risk_free_rate = st.number_input("Risk-Free Rate (%)", value=1.0) / 100
+        hedge_threshold = st.number_input("Hedge Threshold (Delta)", value=0.1)
+        transaction_cost = st.number_input("Transaction Cost (%)", value=0.1) / 100
+    
+        if st.button("Run Backtest"):
+            # Run the backtest
+            bt = BacktestDeltaNeutral(
+                ticker,
+                start_date.strftime('%Y-%m-%d'),
+                end_date.strftime('%Y-%m-%d'),
+                option_type,
+                strike_offset / 100,
+                risk_free_rate,
+                hedge_threshold,
+                transaction_cost,
+            )
+            bt.get_data()
+            bt.estimate_volatility()
+            bt.run_backtest()
+            
+            # Display results
+            st.line_chart(bt.results['PortfolioValue'])
+            st.write("Final Portfolio Value: ${:.2f}".format(bt.results['PortfolioValue'].iloc[-1]))
 
     # Add your existing code for other pages here
     # ...
