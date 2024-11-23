@@ -8,7 +8,7 @@ from prophet import Prophet
 import numpy as np
 import pytz
 import plotly.express as px
-from backtesting import BacktestDeltaNeutral
+
 import threading
 import logging
 from kiteconnect import KiteTicker, KiteConnect
@@ -32,7 +32,6 @@ page_select = st.sidebar.selectbox(
         "NIFTY 500 Sentiment Dashboard",
         "Option Price Analysis",
         "Delta Neutral Hedging",  # Added new section here
-        "Delta Neutral Backtest",
     ],
 )
 
@@ -178,49 +177,6 @@ def mainn():
                     st.error(f"Error placing order: {e}")
         else:
             st.write("Connect to the KiteTicker to place orders.")
-
-    if page_select == "Delta Neutral Backtest":
-        st.title("Delta Neutral Strategy Backtest")
-    
-        # User inputs
-        ticker = st.text_input("Enter Stock Ticker (e.g., AAPL)", value="AAPL")
-        start_date = st.date_input("Start Date", value=pd.to_datetime('2020-01-01'))
-        end_date = st.date_input("End Date", value=pd.to_datetime('2021-01-01'))
-        option_type = st.selectbox("Option Type", ['call', 'put'])
-        strike_offset = st.number_input("Strike Price Offset (%)", value=0.0)
-        risk_free_rate = st.number_input("Risk-Free Rate (%)", value=1.0) / 100
-        hedge_threshold = st.number_input("Hedge Threshold (Delta)", value=0.1)
-        transaction_cost = st.number_input("Transaction Cost (%)", value=0.1) / 100
-    
-        if st.button("Run Backtest"):
-            # Run the backtest
-            bt = BacktestDeltaNeutral(
-                ticker,
-                start_date.strftime('%Y-%m-%d'),
-                end_date.strftime('%Y-%m-%d'),
-                option_type,
-                strike_offset / 100,
-                risk_free_rate,
-                hedge_threshold,
-                transaction_cost,
-            )
-            bt.get_data()
-            bt.estimate_volatility()
-            bt.run_backtest()
-            
-            # Check if results are not empty
-            if bt.results is not None and not bt.results.empty:
-                # Display results
-                st.line_chart(bt.results['PortfolioValue'])
-                # Get the final portfolio value
-                final_value = bt.results['PortfolioValue'].iloc[-1]
-                # If final_value is a Series, extract the scalar
-                if isinstance(final_value, pd.Series):
-                    final_value = final_value.iloc[0]
-                st.write("Final Portfolio Value: ${:.2f}".format(final_value))
-            else:
-                st.write("No results to display. Please check your inputs and try again.")
-
 
     # Add your existing code for other pages here
     # ...
