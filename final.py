@@ -208,9 +208,19 @@ def mainn():
             bt.estimate_volatility()
             bt.run_backtest()
             
-            # Display results
-            st.line_chart(bt.results['PortfolioValue'])
-            st.write("Final Portfolio Value: ${:.2f}".format(bt.results['PortfolioValue'].iloc[-1]))
+            # Check if results are not empty
+            if bt.results is not None and not bt.results.empty:
+                # Display results
+                st.line_chart(bt.results['PortfolioValue'])
+                # Get the final portfolio value
+                final_value = bt.results['PortfolioValue'].iloc[-1]
+                # If final_value is a Series, extract the scalar
+                if isinstance(final_value, pd.Series):
+                    final_value = final_value.iloc[0]
+                st.write("Final Portfolio Value: ${:.2f}".format(final_value))
+            else:
+                st.write("No results to display. Please check your inputs and try again.")
+
 
     # Add your existing code for other pages here
     # ...
